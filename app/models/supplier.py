@@ -62,4 +62,4 @@ class Supplier(Base, TimestampMixin):
     purchases = relationship(
         "Purchase",
         back_populates="supplier",
-    )    
+    )

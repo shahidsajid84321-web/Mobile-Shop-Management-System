@@ -1,17 +1,7 @@
 from decimal import Decimal
 
-from sqlalchemy import (
-    Boolean,
-    ForeignKey,
-    Numeric,
-    String,
-    Text,
-)
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy import Boolean, ForeignKey, Numeric, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 from app.models.base_model import TimestampMixin
@@ -100,7 +90,7 @@ class Product(Base, TimestampMixin):
         "StockTransaction",
         back_populates="product",
         cascade="all, delete-orphan",
-    )    
+    )
 
     purchase_items = relationship(
         "PurchaseItem",
@@ -115,4 +105,4 @@ class Product(Base, TimestampMixin):
     image: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
-    )            
+    )

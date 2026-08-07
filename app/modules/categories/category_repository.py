@@ -19,33 +19,21 @@ class CategoryRepository:
     def get_all(
         db: Session,
     ) -> list[Category]:
-        return (
-            db.query(Category)
-            .order_by(Category.id)
-            .all()
-        )
+        return db.query(Category).order_by(Category.id).all()
 
     @staticmethod
     def get_by_id(
         db: Session,
         category_id: int,
     ) -> Category | None:
-        return (
-            db.query(Category)
-            .filter(Category.id == category_id)
-            .first()
-        )
+        return db.query(Category).filter(Category.id == category_id).first()
 
     @staticmethod
     def get_by_name(
         db: Session,
         name: str,
     ) -> Category | None:
-        return (
-            db.query(Category)
-            .filter(Category.name == name)
-            .first()
-        )
+        return db.query(Category).filter(Category.name == name).first()
 
     @staticmethod
     def update(

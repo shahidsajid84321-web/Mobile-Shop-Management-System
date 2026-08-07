@@ -27,4 +27,4 @@ class Category(Base, TimestampMixin):
     products = relationship(
         "Product",
         back_populates="category",
-    )    
+    )

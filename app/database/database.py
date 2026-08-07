@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 
 from app.core.config import settings
-
-from sqlalchemy.engine import URL
 
 DATABASE_URL = URL.create(
     drivername="mysql+pymysql",

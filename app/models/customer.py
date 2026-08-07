@@ -43,4 +43,4 @@ class Customer(Base, TimestampMixin):
     sales = relationship(
         "Sale",
         back_populates="customer",
-    )    
+    )

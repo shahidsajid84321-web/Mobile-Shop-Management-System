@@ -2,10 +2,8 @@ from sqlalchemy.orm import Session
 
 from app.modules.categories.category_model import Category
 from app.modules.categories.category_repository import CategoryRepository
-from app.modules.categories.category_schema import (
-    CategoryCreate,
-    CategoryUpdate,
-)
+from app.modules.categories.category_schema import (CategoryCreate,
+                                                    CategoryUpdate)
 
 
 class CategoryService:

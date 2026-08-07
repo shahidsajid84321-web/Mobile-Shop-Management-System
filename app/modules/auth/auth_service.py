@@ -1,25 +1,11 @@
 from sqlalchemy.orm import Session
 
-from app.core.security import (
-    hash_password,
-    verify_password,
-)
-
 from app.core.auth import create_access_token
-
+from app.core.exceptions import BadRequestException, UnauthorizedException
+from app.core.security import hash_password, verify_password
 from app.models.user import User
 from app.modules.auth.auth_repository import AuthRepository
-
-from app.modules.auth.auth_schema import (
-    UserRegister,
-    UserLogin,
-    Token,
-)
-
-from app.core.exceptions import (
-    BadRequestException,
-    UnauthorizedException,
-)
+from app.modules.auth.auth_schema import Token, UserLogin, UserRegister
 
 
 class AuthService:

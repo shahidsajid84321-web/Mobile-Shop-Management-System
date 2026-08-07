@@ -30,6 +30,4 @@ class CategoryResponse(BaseModel):
     name: str
     description: str | None
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}

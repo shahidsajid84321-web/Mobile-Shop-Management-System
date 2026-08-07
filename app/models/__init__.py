@@ -1,12 +1,16 @@
-from app.models.role import Role
-from app.models.user import User
+from .user import User
+from .role import Role
+from .customer import Customer
+from .supplier import Supplier
+from .product import Product
+from .purchase import Purchase
+from .purchase_item import PurchaseItem
+from .sale import Sale
+from .sale_item import SaleItem
+from .payment import Payment
+from .stock_transaction import StockTransaction
+
 from app.modules.categories.category_model import Category
-from app.models.product import Product
-from app.models.stock_transaction import StockTransaction
-from app.models.supplier import Supplier
-from app.models.purchase import Purchase
-from app.models.purchase_item import PurchaseItem
-from app.models.customer import Customer
-from app.models.sale import Sale
-from app.models.sale_item import SaleItem
-from app.models.payment import Payment
+
+from app.modules.permissions.permission_model import Permission
+from app.modules.permissions.role_permission_model import RolePermission

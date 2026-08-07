@@ -1,12 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from app.core.exceptions import (
-    BadRequestException,
-    NotFoundException,
-    UnauthorizedException,
-    ForbiddenException,
-)
+from app.core.exceptions import (BadRequestException, ForbiddenException,
+                                 NotFoundException, UnauthorizedException)
 
 
 def register_exception_handlers(app: FastAPI):

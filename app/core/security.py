@@ -1,11 +1,9 @@
-from passlib.context import CryptContext
-
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 from jose import jwt
+from passlib.context import CryptContext
 
 from app.core.config import settings
-
 
 # Configure password hashing
 pwd_context = CryptContext(
@@ -32,6 +30,7 @@ def verify_password(
         plain_password,
         hashed_password,
     )
+
 
 def create_access_token(data: dict) -> str:
     """

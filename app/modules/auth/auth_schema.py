@@ -21,9 +21,8 @@ class UserResponse(BaseModel):
     phone: str | None = None
     role_id: int
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}
+
 
 class Token(BaseModel):
     access_token: str

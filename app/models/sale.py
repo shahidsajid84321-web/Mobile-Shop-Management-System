@@ -77,4 +77,4 @@ class Sale(Base, TimestampMixin):
         "Payment",
         back_populates="sale",
         cascade="all, delete-orphan",
-    )    
+    )

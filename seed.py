@@ -1,17 +1,26 @@
 from app.database.session import SessionLocal
-from app.seeders.role_seeder import seed_roles
+
+from app.modules.roles.role_seeder import seed_roles
+from app.modules.permissions.permission_seeder import seed_permissions
+from app.modules.permissions.role_permission_seeder import (
+    seed_role_permissions,
+)
 
 
-def run_seeders():
+def seed_database():
+
     db = SessionLocal()
 
     try:
-        print("Seeding database...")
         seed_roles(db)
-        print("Database seeded successfully.")
+        seed_permissions(db)
+        seed_role_permissions(db)
+
+        print("✅ Database seeded successfully.")
+
     finally:
         db.close()
 
 
 if __name__ == "__main__":
-    run_seeders()
+    seed_database()

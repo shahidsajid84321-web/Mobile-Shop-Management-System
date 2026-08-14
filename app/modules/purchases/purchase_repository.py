@@ -19,9 +19,27 @@ class PurchaseRepository:
     @staticmethod
     def get_all(
         db: Session,
-    ) -> list[Purchase]:
+        page: int,
+        page_size: int,
+    ) -> tuple[list[Purchase], int]:
 
-        return db.query(Purchase).order_by(Purchase.id.desc()).all()
+        query = (
+            db.query(Purchase)
+            .order_by(Purchase.id.desc())
+        )
+
+        total = query.count()
+
+        offset = (page - 1) * page_size
+
+        purchases = (
+            query
+            .offset(offset)
+            .limit(page_size)
+            .all()
+        )
+
+        return purchases, total
 
     @staticmethod
     def get_by_id(
@@ -29,4 +47,22 @@ class PurchaseRepository:
         purchase_id: int,
     ) -> Purchase | None:
 
-        return db.query(Purchase).filter(Purchase.id == purchase_id).first()
+        return (
+            db.query(Purchase)
+            .filter(Purchase.id == purchase_id)
+            .first()
+        )
+
+    @staticmethod
+    def get_by_invoice_number(
+        db: Session,
+        invoice_number: str,
+    ) -> Purchase | None:
+
+        return (
+            db.query(Purchase)
+            .filter(
+                Purchase.invoice_number == invoice_number
+            )
+            .first()
+        )

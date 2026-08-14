@@ -2,18 +2,21 @@ from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import NotFoundException
+from app.core.exceptions import BadRequestException, NotFoundException
 from app.models.sale import Sale
 from app.models.sale_item import SaleItem
 from app.models.stock_transaction import StockTransaction
 from app.modules.customers.customer_repository import CustomerRepository
-from app.modules.inventory.inventory_repository import \
-    StockTransactionRepository
+from app.modules.inventory.inventory_repository import StockTransactionRepository
 from app.modules.products.product_repository import ProductRepository
 from app.modules.sales.sale_item_repository import SaleItemRepository
 from app.modules.sales.sale_repository import SaleRepository
 from app.modules.sales.sale_schema import SaleCreate
 
+from app.shared.pagination import (
+    PaginationParams,
+    PaginatedResponse,
+)
 
 class SaleService:
 
@@ -37,7 +40,7 @@ class SaleService:
         )
 
         if existing:
-            raise ValueError("Invoice number already exists.")
+            raise BadRequestException("Invoice number already exists.")
 
         sale = Sale(
             customer_id=data.customer_id,
@@ -62,16 +65,16 @@ class SaleService:
 
             for item in data.items:
 
-                product = ProductRepository.get_by_id(
+                product = ProductRepository.get_by_id_for_update(
                     db,
                     item.product_id,
                 )
 
                 if product is None:
-                    raise ValueError(f"Product {item.product_id} not found.")
+                    raise NotFoundException(f"Product {item.product_id} not found.")
 
                 if product.stock_quantity < item.quantity:
-                    raise ValueError(f"Insufficient stock for {product.name}")
+                    raise BadRequestException(f"Insufficient stock for {product.name}")
 
                 subtotal = item.quantity * item.unit_price
 
@@ -80,6 +83,7 @@ class SaleService:
                     product_id=item.product_id,
                     quantity=item.quantity,
                     unit_price=item.unit_price,
+                    cost_price=product.purchase_price,
                     subtotal=subtotal,
                 )
 
@@ -105,8 +109,21 @@ class SaleService:
 
                 total += subtotal
 
+            if data.discount > total:
+                raise BadRequestException(
+                    "Discount cannot exceed the sale subtotal."
+                )
+
             sale.total_amount = total
             sale.grand_total = total - data.discount + data.tax
+
+            if sale.grand_total < Decimal("0.00"):
+                raise BadRequestException(
+                    "Sale grand total cannot be negative."
+                )
+
+            if sale.grand_total == Decimal("0.00"):
+                sale.payment_status = "Paid"
 
             db.commit()
 
@@ -122,8 +139,24 @@ class SaleService:
     @staticmethod
     def get_all(
         db: Session,
-    ):
-        return SaleRepository.get_all(db)
+        pagination: PaginationParams,
+    ) -> PaginatedResponse[Sale]:
+
+        page = pagination.page
+        page_size = pagination.page_size
+
+        sales, total = SaleRepository.get_all(
+            db,
+            page,
+            page_size,
+        )
+
+        return PaginatedResponse.create(
+            items=sales,
+            page=page,
+            page_size=page_size,
+            total=total,
+        )
 
     @staticmethod
     def get_one(
@@ -137,6 +170,6 @@ class SaleService:
         )
 
         if sale is None:
-            raise ValueError("Sale not found.")
+            raise NotFoundException("Sale not found.")
 
         return sale

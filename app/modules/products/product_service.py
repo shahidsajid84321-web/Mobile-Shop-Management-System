@@ -1,9 +1,18 @@
 from sqlalchemy.orm import Session
 
 from app.models.product import Product
+from app.models.stock_transaction import StockTransaction
 from app.modules.categories.category_model import Category
 from app.modules.products.product_repository import ProductRepository
-from app.modules.products.product_schema import ProductCreate, ProductUpdate
+from app.modules.products.product_schema import (
+    ProductCreate,
+    ProductResponse,
+    ProductUpdate,
+)
+
+from app.shared.pagination import (
+    PaginatedResponse,
+)
 
 
 class ProductService:
@@ -46,17 +55,42 @@ class ProductService:
             category_id=product_data.category_id,
         )
 
-        return ProductRepository.create_product(
-            db,
-            product,
-        )
+        # Keep initial stock auditable just like later adjustments.
+        db.add(product)
+        db.flush()
+        if product.stock_quantity:
+            db.add(
+                StockTransaction(
+                    product_id=product.id,
+                    transaction_type="IN",
+                    quantity=product.stock_quantity,
+                    unit_price=product.purchase_price,
+                    remarks="Initial product stock",
+                )
+            )
+        db.commit()
+        db.refresh(product)
+        return product
 
     @staticmethod
-    def get_all_products(
+    def get_paginated(
         db: Session,
-    ) -> list[Product]:
+        page: int,
+        page_size: int,
+    ) -> PaginatedResponse[ProductResponse]:
 
-        return ProductRepository.get_all_products(db)
+        products, total = ProductRepository.get_paginated(
+            db,
+            page,
+            page_size,
+        )
+
+        return PaginatedResponse.create(
+            items=products,
+            page=page,
+            page_size=page_size,
+            total=total,
+        )
 
     @staticmethod
     def get_product(
@@ -64,7 +98,7 @@ class ProductService:
         product_id: int,
     ) -> Product:
 
-        product = ProductRepository.get_product_by_id(
+        product = ProductRepository.get_by_id(
             db,
             product_id,
         )
@@ -81,7 +115,7 @@ class ProductService:
         product_data: ProductUpdate,
     ) -> Product:
 
-        product = ProductRepository.get_product_by_id(
+        product = ProductRepository.get_by_id(
             db,
             product_id,
         )
@@ -90,6 +124,36 @@ class ProductService:
             raise ValueError("Product not found.")
 
         update_data = product_data.model_dump(exclude_unset=True)
+
+        if "stock_quantity" in update_data:
+            raise ValueError(
+                "Stock quantity must be changed through inventory adjustments."
+            )
+
+        if "category_id" in update_data and (
+            db.query(Category)
+            .filter(Category.id == update_data["category_id"])
+            .first() is None
+        ):
+            raise ValueError("Category not found.")
+
+        if "sku" in update_data:
+            existing = (
+                db.query(Product)
+                .filter(Product.sku == update_data["sku"])
+                .first()
+            )
+            if existing and existing.id != product.id:
+                raise ValueError("SKU already exists.")
+
+        if "barcode" in update_data and update_data["barcode"] is not None:
+            existing = (
+                db.query(Product)
+                .filter(Product.barcode == update_data["barcode"])
+                .first()
+            )
+            if existing and existing.id != product.id:
+                raise ValueError("Barcode already exists.")
 
         for key, value in update_data.items():
             setattr(product, key, value)
@@ -105,13 +169,18 @@ class ProductService:
         product_id: int,
     ):
 
-        product = ProductRepository.get_product_by_id(
+        product = ProductRepository.get_by_id(
             db,
             product_id,
         )
 
         if product is None:
             raise ValueError("Product not found.")
+
+        if product.purchase_items or product.sale_items or product.stock_transactions:
+            raise ValueError(
+                "Product cannot be deleted because it has inventory or transaction history."
+            )
 
         ProductRepository.delete_product(
             db,

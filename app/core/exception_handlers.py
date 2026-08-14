@@ -1,11 +1,26 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
 
-from app.core.exceptions import (BadRequestException, ForbiddenException,
-                                 NotFoundException, UnauthorizedException)
+from app.core.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    NotFoundException,
+    UnauthorizedException,
+    )
 
 
 def register_exception_handlers(app: FastAPI):
+
+    @app.exception_handler(IntegrityError)
+    async def integrity_error_handler(
+        request: Request,
+        exc: IntegrityError,
+    ):
+        return JSONResponse(
+            status_code=409,
+            content={"detail": "The request conflicts with existing data."},
+        )
 
     @app.exception_handler(BadRequestException)
     async def bad_request_handler(

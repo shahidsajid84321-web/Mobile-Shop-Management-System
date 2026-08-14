@@ -1,107 +1,166 @@
 from sqlalchemy.orm import Session
 
+from app.core.constants.permissions import PermissionCode
+from app.core.enums.roles import RoleName
 from app.models.role import Role
 from app.modules.permissions.permission_model import Permission
 from app.modules.permissions.role_permission_model import RolePermission
 
 
-ROLE_PERMISSIONS = {"Admin": "*",
+ROLE_PERMISSIONS = {
+    RoleName.SUPER_ADMIN: "*",
 
-"Manager": [
-    "dashboard.view",
+    RoleName.ADMIN: [
+        PermissionCode.DASHBOARD_VIEW,
 
-    "users.view",
-    "users.create",
-    "users.update",
+        PermissionCode.USERS_VIEW,
+        PermissionCode.USERS_CREATE,
+        PermissionCode.USERS_UPDATE,
+        PermissionCode.USERS_DELETE,
 
-    "roles.view",
+        PermissionCode.ROLES_VIEW,
+        PermissionCode.ROLES_CREATE,
+        PermissionCode.ROLES_UPDATE,
+        PermissionCode.ROLES_DELETE,
 
-    "products.view",
-    "products.create",
-    "products.update",
-    "products.delete",
+        PermissionCode.PRODUCTS_VIEW,
+        PermissionCode.PRODUCTS_CREATE,
+        PermissionCode.PRODUCTS_UPDATE,
+        PermissionCode.PRODUCTS_DELETE,
 
-    "categories.view",
-    "categories.create",
-    "categories.update",
-    "categories.delete",
+        PermissionCode.CATEGORIES_VIEW,
+        PermissionCode.CATEGORIES_CREATE,
+        PermissionCode.CATEGORIES_UPDATE,
+        PermissionCode.CATEGORIES_DELETE,
 
-    "suppliers.view",
-    "suppliers.create",
-    "suppliers.update",
-    "suppliers.delete",
+        PermissionCode.SUPPLIERS_VIEW,
+        PermissionCode.SUPPLIERS_CREATE,
+        PermissionCode.SUPPLIERS_UPDATE,
+        PermissionCode.SUPPLIERS_DELETE,
 
-    "customers.view",
-    "customers.create",
-    "customers.update",
-    "customers.delete",
+        PermissionCode.CUSTOMERS_VIEW,
+        PermissionCode.CUSTOMERS_CREATE,
+        PermissionCode.CUSTOMERS_UPDATE,
+        PermissionCode.CUSTOMERS_DELETE,
 
-    "purchases.view",
-    "purchases.create",
-    "purchases.update",
-    "purchases.delete",
+        PermissionCode.PURCHASES_VIEW,
+        PermissionCode.PURCHASES_CREATE,
+        PermissionCode.PURCHASES_UPDATE,
+        PermissionCode.PURCHASES_DELETE,
 
-    "sales.view",
-    "sales.create",
-    "sales.update",
-    "sales.delete",
+        PermissionCode.SALES_VIEW,
+        PermissionCode.SALES_CREATE,
+        PermissionCode.SALES_UPDATE,
+        PermissionCode.SALES_DELETE,
 
-    "inventory.view",
-    "inventory.adjust",
+        PermissionCode.INVENTORY_VIEW,
+        PermissionCode.INVENTORY_ADJUST,
 
-    "reports.view",
+        PermissionCode.PAYMENTS_VIEW,
+        PermissionCode.PAYMENTS_CREATE,
 
-    "payments.view",
-    "payments.create",
-],
+        PermissionCode.REPORTS_VIEW,
 
-"Cashier": [
-    "dashboard.view",
+        PermissionCode.SETTINGS_MANAGE,
+    ],
 
-    "products.view",
+    RoleName.MANAGER: [
+        PermissionCode.DASHBOARD_VIEW,
 
-    "customers.view",
-    "customers.create",
-    "customers.update",
+        PermissionCode.USERS_VIEW,
+        PermissionCode.USERS_CREATE,
+        PermissionCode.USERS_UPDATE,
 
-    "sales.view",
-    "sales.create",
+        PermissionCode.ROLES_VIEW,
 
-    "payments.view",
-    "payments.create",
-],
+        PermissionCode.PRODUCTS_VIEW,
+        PermissionCode.PRODUCTS_CREATE,
+        PermissionCode.PRODUCTS_UPDATE,
+        PermissionCode.PRODUCTS_DELETE,
 
-"Inventory Manager": [
-    "dashboard.view",
+        PermissionCode.CATEGORIES_VIEW,
+        PermissionCode.CATEGORIES_CREATE,
+        PermissionCode.CATEGORIES_UPDATE,
+        PermissionCode.CATEGORIES_DELETE,
 
-    "products.view",
-    "products.create",
-    "products.update",
+        PermissionCode.SUPPLIERS_VIEW,
+        PermissionCode.SUPPLIERS_CREATE,
+        PermissionCode.SUPPLIERS_UPDATE,
+        PermissionCode.SUPPLIERS_DELETE,
 
-    "categories.view",
-    "categories.create",
-    "categories.update",
+        PermissionCode.CUSTOMERS_VIEW,
+        PermissionCode.CUSTOMERS_CREATE,
+        PermissionCode.CUSTOMERS_UPDATE,
+        PermissionCode.CUSTOMERS_DELETE,
 
-    "suppliers.view",
-    "suppliers.create",
-    "suppliers.update",
+        PermissionCode.PURCHASES_VIEW,
+        PermissionCode.PURCHASES_CREATE,
+        PermissionCode.PURCHASES_UPDATE,
+        PermissionCode.PURCHASES_DELETE,
 
-    "purchases.view",
-    "purchases.create",
-    "purchases.update",
+        PermissionCode.SALES_VIEW,
+        PermissionCode.SALES_CREATE,
+        PermissionCode.SALES_UPDATE,
+        PermissionCode.SALES_DELETE,
 
-    "inventory.view",
-    "inventory.adjust",
+        PermissionCode.INVENTORY_VIEW,
+        PermissionCode.INVENTORY_ADJUST,
 
-    "reports.view",
-],
+        PermissionCode.PAYMENTS_VIEW,
+        PermissionCode.PAYMENTS_CREATE,
 
+        PermissionCode.REPORTS_VIEW,
+    ],
+
+    RoleName.SALESMAN: [
+        PermissionCode.DASHBOARD_VIEW,
+
+        PermissionCode.PRODUCTS_VIEW,
+
+        PermissionCode.CUSTOMERS_VIEW,
+        PermissionCode.CUSTOMERS_CREATE,
+        PermissionCode.CUSTOMERS_UPDATE,
+
+        PermissionCode.SALES_VIEW,
+        PermissionCode.SALES_CREATE,
+
+        PermissionCode.PAYMENTS_VIEW,
+        PermissionCode.PAYMENTS_CREATE,
+    ],
+
+    RoleName.INVENTORY_MANAGER: [
+        PermissionCode.DASHBOARD_VIEW,
+
+        PermissionCode.PRODUCTS_VIEW,
+        PermissionCode.PRODUCTS_CREATE,
+        PermissionCode.PRODUCTS_UPDATE,
+
+        PermissionCode.CATEGORIES_VIEW,
+        PermissionCode.CATEGORIES_CREATE,
+        PermissionCode.CATEGORIES_UPDATE,
+
+        PermissionCode.SUPPLIERS_VIEW,
+        PermissionCode.SUPPLIERS_CREATE,
+        PermissionCode.SUPPLIERS_UPDATE,
+
+        PermissionCode.PURCHASES_VIEW,
+        PermissionCode.PURCHASES_CREATE,
+        PermissionCode.PURCHASES_UPDATE,
+
+        PermissionCode.INVENTORY_VIEW,
+        PermissionCode.INVENTORY_ADJUST,
+
+        PermissionCode.REPORTS_VIEW,
+    ],
+
+    RoleName.CUSTOMER: [
+        PermissionCode.PRODUCTS_VIEW,
+    ],
 }
 
 def seed_role_permissions(db: Session) -> None:
 
     roles = db.query(Role).all()
-
     permissions = db.query(Permission).all()
 
     permission_map = {
@@ -116,7 +175,6 @@ def seed_role_permissions(db: Session) -> None:
         if assigned_permissions is None:
             continue
 
-        # Admin gets every permission
         if assigned_permissions == "*":
             selected_permissions = permissions
 

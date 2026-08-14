@@ -1,23 +1,31 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.exceptions import (
+    ForbiddenException,
+    UnauthorizedException,
+)
 from app.dependencies.db import get_db
 from app.models.user import User
 
-security = HTTPBearer()
+
+security = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
 
-    token = credentials.credentials
+    if credentials is None:
+        raise UnauthorizedException(
+            "Authentication credentials are required."
+        )
 
-    print("TOKEN:", token)
+    token = credentials.credentials
 
     try:
         payload = jwt.decode(
@@ -26,25 +34,37 @@ def get_current_user(
             algorithms=[settings.ALGORITHM],
         )
 
-        print("PAYLOAD:", payload)
+        subject = payload.get("sub")
 
-        user_id = int(payload.get("sub"))
+        if subject is None:
+            raise UnauthorizedException(
+                "Invalid token."
+            )
 
-        print("USER ID:", user_id)
+        user_id = int(subject)
 
-    except Exception as e:
-        print("JWT ERROR:", e)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+    except UnauthorizedException:
+        raise
+
+    except (JWTError, ValueError, TypeError):
+        raise UnauthorizedException(
+            "Invalid or expired token."
         )
 
-    user = db.query(User).filter(User.id == user_id).first()
+    user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
 
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+        raise UnauthorizedException(
+            "User not found."
+        )
+
+    if not user.is_active:
+        raise ForbiddenException(
+            "User account is inactive."
         )
 
     return user

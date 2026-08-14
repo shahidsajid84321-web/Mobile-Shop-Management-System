@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.models.payment import Payment
 
@@ -19,9 +20,18 @@ class PaymentRepository:
     @staticmethod
     def get_all(
         db: Session,
+        page: int,
+        page_size: int,
     ):
-
-        return db.query(Payment).order_by(Payment.id.desc()).all()
+        query = db.query(Payment)
+        total = query.with_entities(func.count(Payment.id)).scalar() or 0
+        items = (
+            query.order_by(Payment.id.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+            .all()
+        )
+        return items, total
 
     @staticmethod
     def get_by_id(

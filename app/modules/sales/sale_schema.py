@@ -12,12 +12,29 @@ class SaleItemCreate(BaseModel):
 
 class SaleCreate(BaseModel):
     customer_id: int
-    invoice_number: str
+
+    invoice_number: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+
     sale_date: date
-    discount: Decimal = Decimal("0.00")
-    tax: Decimal = Decimal("0.00")
+
+    discount: Decimal = Field(
+        default=Decimal("0.00"),
+        ge=0,
+    )
+
+    tax: Decimal = Field(
+        default=Decimal("0.00"),
+        ge=0,
+    )
+
     remarks: str | None = None
-    items: list[SaleItemCreate]
+
+    items: list[SaleItemCreate] = Field(
+        min_length=1,
+    )
 
 
 class SaleItemResponse(BaseModel):
@@ -25,6 +42,7 @@ class SaleItemResponse(BaseModel):
     product_id: int
     quantity: int
     unit_price: Decimal
+    cost_price: Decimal
     subtotal: Decimal
 
     model_config = ConfigDict(

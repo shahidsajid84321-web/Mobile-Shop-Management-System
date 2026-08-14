@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from sqlalchemy import Date, ForeignKey, Numeric, String
+from sqlalchemy import Boolean, Date, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -55,6 +55,13 @@ class Sale(Base, TimestampMixin):
     payment_status: Mapped[str] = mapped_column(
         String(30),
         default="Pending",
+    )
+
+    is_voided: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        index=True,
     )
 
     remarks: Mapped[str | None] = mapped_column(

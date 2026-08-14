@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, String
+from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -10,6 +10,13 @@ class Customer(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
+        index=True,
+    )
+
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id"),
+        unique=True,
+        nullable=True,
         index=True,
     )
 
@@ -40,7 +47,20 @@ class Customer(Base, TimestampMixin):
         default=True,
     )
 
+    user = relationship("User", back_populates="customer")
+
     sales = relationship(
         "Sale",
         back_populates="customer",
+    )
+
+    orders = relationship(
+        "Order",
+        back_populates="customer",
+    )
+
+    cart = relationship(
+        "Cart",
+        back_populates="customer",
+        uselist=False,
     )

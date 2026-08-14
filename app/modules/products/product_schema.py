@@ -11,11 +11,11 @@ class ProductCreate(BaseModel):
     barcode: str | None = None
     description: str | None = None
 
-    purchase_price: Decimal
-    selling_price: Decimal
+    purchase_price: Decimal = Field(ge=0)
+    selling_price: Decimal = Field(ge=0)
 
-    stock_quantity: int = 0
-    minimum_stock: int = 0
+    stock_quantity: int = Field(default=0, ge=0)
+    minimum_stock: int = Field(default=0, ge=0)
 
     image: str | None = None
 
@@ -32,11 +32,11 @@ class ProductUpdate(BaseModel):
     barcode: str | None = None
     description: str | None = None
 
-    purchase_price: Decimal | None = None
-    selling_price: Decimal | None = None
+    purchase_price: Decimal | None = Field(default=None, ge=0)
+    selling_price: Decimal | None = Field(default=None, ge=0)
 
-    stock_quantity: int | None = None
-    minimum_stock: int | None = None
+    stock_quantity: int | None = Field(default=None, ge=0)
+    minimum_stock: int | None = Field(default=None, ge=0)
 
     image: str | None = None
 

@@ -35,6 +35,11 @@ class SaleItem(Base, TimestampMixin):
         nullable=False,
     )
 
+    cost_price: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+    )
+
     subtotal: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
         nullable=False,

@@ -16,24 +16,49 @@ class CategoryRepository:
         return category
 
     @staticmethod
-    def get_all(
+    def get_paginated(
         db: Session,
-    ) -> list[Category]:
-        return db.query(Category).order_by(Category.id).all()
+        page: int,
+        page_size: int,
+    ) -> tuple[list[Category], int]:
+        query = (
+            db.query(Category)
+            .order_by(Category.id.desc())
+        )
+
+        total = query.count()
+        offset = (page - 1) * page_size
+
+        categories = (
+            query
+            .offset(offset)
+            .limit(page_size)
+            .all()
+        )
+
+        return categories, total
 
     @staticmethod
     def get_by_id(
         db: Session,
         category_id: int,
     ) -> Category | None:
-        return db.query(Category).filter(Category.id == category_id).first()
+        return (
+            db.query(Category)
+            .filter(Category.id == category_id)
+            .first()
+        )
 
     @staticmethod
     def get_by_name(
         db: Session,
         name: str,
     ) -> Category | None:
-        return db.query(Category).filter(Category.name == name).first()
+        return (
+            db.query(Category)
+            .filter(Category.name == name)
+            .first()
+        )
 
     @staticmethod
     def update(

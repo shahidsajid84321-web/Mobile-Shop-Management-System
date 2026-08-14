@@ -1,10 +1,18 @@
 from sqlalchemy.orm import Session
+from app.core.exceptions import BadRequestException, NotFoundException
 
 from app.models.supplier import Supplier
 from app.modules.suppliers.supplier_repository import SupplierRepository
-from app.modules.suppliers.supplier_schema import (SupplierCreate,
-                                                   SupplierUpdate)
+from app.modules.suppliers.supplier_schema import (
+    SupplierCreate,
+    SupplierResponse,
+    SupplierUpdate,
+)
 
+from app.shared.pagination import (
+    PaginationParams,
+    PaginatedResponse,
+)
 
 class SupplierService:
 
@@ -20,7 +28,7 @@ class SupplierService:
         )
 
         if existing:
-            raise ValueError("Supplier already exists.")
+            raise BadRequestException("Supplier already exists.")
 
         supplier = Supplier(**data.model_dump())
 
@@ -32,8 +40,21 @@ class SupplierService:
     @staticmethod
     def get_all(
         db: Session,
-    ):
-        return SupplierRepository.get_all(db)
+        pagination: PaginationParams,
+    ) -> PaginatedResponse[SupplierResponse]:
+
+        suppliers, total = SupplierRepository.get_all(
+            db,
+            pagination.page,
+            pagination.page_size,
+        )
+
+        return PaginatedResponse.create(
+            items=suppliers,
+            page=pagination.page,
+            page_size=pagination.page_size,
+            total=total,
+        )
 
     @staticmethod
     def get_one(
@@ -47,7 +68,7 @@ class SupplierService:
         )
 
         if supplier is None:
-            raise ValueError("Supplier not found.")
+            raise NotFoundException("Supplier not found.")
 
         return supplier
 
@@ -64,9 +85,17 @@ class SupplierService:
         )
 
         if supplier is None:
-            raise ValueError("Supplier not found.")
+            raise NotFoundException("Supplier not found.")
 
-        for key, value in data.model_dump(exclude_unset=True).items():
+        updates = data.model_dump(exclude_unset=True)
+        if "company_name" in updates:
+            existing = SupplierRepository.get_by_company_name(
+                db, updates["company_name"]
+            )
+            if existing and existing.id != supplier.id:
+                raise BadRequestException("Supplier already exists.")
+
+        for key, value in updates.items():
             setattr(
                 supplier,
                 key,
@@ -90,7 +119,10 @@ class SupplierService:
         )
 
         if supplier is None:
-            raise ValueError("Supplier not found.")
+            raise NotFoundException("Supplier not found.")
+
+        if supplier.purchases:
+            raise BadRequestException("Supplier cannot be deleted because purchases are recorded for it.")
 
         SupplierRepository.delete(
             db,

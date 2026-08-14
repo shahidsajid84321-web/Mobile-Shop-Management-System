@@ -20,9 +20,23 @@ class SupplierRepository:
     @staticmethod
     def get_all(
         db: Session,
-    ) -> list[Supplier]:
+        page: int,
+        page_size: int,
+    ) -> tuple[list[Supplier], int]:
 
-        return db.query(Supplier).all()
+        query = db.query(Supplier)
+
+        total = query.count()
+
+        suppliers = (
+            query
+            .order_by(Supplier.id.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+            .all()
+        )
+
+        return suppliers, total
 
     @staticmethod
     def get_by_id(

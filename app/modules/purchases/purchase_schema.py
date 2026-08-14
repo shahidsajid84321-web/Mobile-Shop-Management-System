@@ -12,11 +12,15 @@ class PurchaseItemCreate(BaseModel):
 
 class PurchaseCreate(BaseModel):
     supplier_id: int
-    invoice_number: str
+    invoice_number: str = Field(
+        min_length=1,
+        max_length=100,
+    )
     purchase_date: date
     remarks: str | None = None
-    items: list[PurchaseItemCreate]
-
+    items: list[PurchaseItemCreate] = Field(
+        min_length=1,
+    )
 
 class PurchaseItemResponse(BaseModel):
     id: int

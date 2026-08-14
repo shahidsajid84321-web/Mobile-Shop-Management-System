@@ -18,11 +18,29 @@ class CustomerRepository:
         return customer
 
     @staticmethod
-    def get_all(
+    def get_paginated(
         db: Session,
-    ):
+        page: int,
+        page_size: int,
+    ) -> tuple[list[Customer], int]:
 
-        return db.query(Customer).all()
+        query = (
+            db.query(Customer)
+            .order_by(Customer.id.desc())
+        )
+
+        total = query.count()
+
+        offset = (page - 1) * page_size
+
+        customers = (
+            query
+            .offset(offset)
+            .limit(page_size)
+            .all()
+        )
+
+        return customers, total
 
     @staticmethod
     def get_by_id(
@@ -39,6 +57,13 @@ class CustomerRepository:
     ):
 
         return db.query(Customer).filter(Customer.phone == phone).first()
+
+    @staticmethod
+    def get_by_email(
+        db: Session,
+        email: str,
+    ):
+        return db.query(Customer).filter(Customer.email == email).first()
 
     @staticmethod
     def update(

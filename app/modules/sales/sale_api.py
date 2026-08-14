@@ -1,62 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from app.core.constants.permissions import PermissionCode
 from app.dependencies.db import get_db
+from app.modules.permissions.permission_dependencies import require_permission
 from app.modules.sales.sale_schema import SaleCreate, SaleResponse
 from app.modules.sales.sale_service import SaleService
+from app.shared.common_schema import ApiResponse
+from app.shared.pagination import PaginationParams, PaginatedResponse
+from app.shared.responses import success_response
 
-router = APIRouter(
-    prefix="/sales",
-    tags=["Sales"],
-)
+router = APIRouter(prefix="/sales", tags=["Sales"])
 
+@router.post("/", response_model=ApiResponse[SaleResponse], status_code=status.HTTP_201_CREATED)
+def create_sale(sale: SaleCreate, db: Session = Depends(get_db),
+                current_user=Depends(require_permission(PermissionCode.SALES_CREATE))):
+    return success_response("Sale created successfully.", SaleService.create(db, sale))
 
-@router.post(
-    "/",
-    response_model=SaleResponse,
-    status_code=201,
-)
-def create_sale(
-    sale: SaleCreate,
-    db: Session = Depends(get_db),
-):
-    try:
-        return SaleService.create(
-            db,
-            sale,
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e),
-        )
+@router.get("/", response_model=ApiResponse[PaginatedResponse[SaleResponse]])
+def get_sales(pagination: PaginationParams = Depends(), db: Session = Depends(get_db),
+              current_user=Depends(require_permission(PermissionCode.SALES_VIEW))):
+    return success_response("Sales retrieved successfully.", SaleService.get_all(db, pagination))
 
-
-@router.get(
-    "/",
-    response_model=list[SaleResponse],
-)
-def get_sales(
-    db: Session = Depends(get_db),
-):
-    return SaleService.get_all(db)
-
-
-@router.get(
-    "/{sale_id}",
-    response_model=SaleResponse,
-)
-def get_sale(
-    sale_id: int,
-    db: Session = Depends(get_db),
-):
-    try:
-        return SaleService.get_one(
-            db,
-            sale_id,
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=404,
-            detail=str(e),
-        )
+@router.get("/{sale_id}", response_model=ApiResponse[SaleResponse])
+def get_sale(sale_id: int, db: Session = Depends(get_db),
+             current_user=Depends(require_permission(PermissionCode.SALES_VIEW))):
+    return success_response("Sale retrieved successfully.", SaleService.get_one(db, sale_id))

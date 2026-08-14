@@ -5,19 +5,52 @@ from pydantic import BaseModel
 
 class DashboardResponse(BaseModel):
 
+    # -------------------------
+    # Basic Counts
+    # -------------------------
+
     total_products: int
+    active_products: int
+    low_stock_products: int
+    out_of_stock_products: int
+
     total_categories: int
     total_customers: int
     total_suppliers: int
 
-    total_sales: Decimal
-    total_purchases: Decimal
+    # -------------------------
+    # Sales
+    # -------------------------
 
-    today_sales: Decimal
-    today_purchases: Decimal
+    total_sales_count: int
+    total_sales_amount: Decimal
+    today_sales_amount: Decimal
 
+    # -------------------------
+    # Purchases
+    # -------------------------
+
+    total_purchases_count: int
+    total_purchases_amount: Decimal
+    today_purchases_amount: Decimal
+
+    # -------------------------
+    # Inventory
+    # -------------------------
+
+    total_stock: int
+    total_stock_in: int
+    total_stock_out: int
+
+    # -------------------------
+    # Payments
+    # -------------------------
+
+    total_paid_amount: Decimal
     pending_payments: Decimal
 
-    low_stock_products: int
+    # -------------------------
+    # Profit
+    # -------------------------
 
-    profit: Decimal
+    gross_profit: Decimal

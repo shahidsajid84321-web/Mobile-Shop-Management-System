@@ -68,6 +68,27 @@ def remove_cart_item(product_id: int, current_user: User = Depends(get_current_u
     return success_response("Item removed from cart successfully.", StoreService.remove_from_cart(db, current_user.id, product_id))
 
 
+@router.patch(
+    "/cart/items/{product_id}",
+    response_model=ApiResponse[CartResponse],
+)
+def update_cart_item(
+    product_id: int,
+    data: CartItemRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return success_response(
+        "Cart item updated successfully.",
+        StoreService.update_cart_item(
+            db,
+            current_user.id,
+            product_id,
+            data.quantity,
+        ),
+    )
+
+
 @router.post("/checkout", response_model=ApiResponse[OrderResponse], status_code=201)
 def checkout(data: CheckoutRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return success_response("Order placed successfully.", StoreService.checkout(db, current_user.id, data))

@@ -80,6 +80,62 @@ class StoreService:
         return StoreService.cart_response(StoreService.get_cart(db, user_id))
 
     @staticmethod
+    def update_cart_item(
+        db: Session,
+        user_id: int,
+        product_id: int,
+        quantity: int,
+    ):
+        if quantity < 1:
+            raise BadRequestException(
+                "Cart quantity must be at least 1."
+            )
+
+        customer = StoreService._customer(db, user_id)
+
+        product = (
+            db.query(Product)
+            .filter(
+                Product.id == product_id,
+                Product.is_active.is_(True),
+            )
+            .first()
+        )
+
+        if product is None:
+            raise NotFoundException("Product not found.")
+
+        if quantity > product.stock_quantity:
+            raise BadRequestException(
+                "Cart quantity exceeds available stock."
+            )
+
+        item = (
+            db.query(CartItem)
+            .join(Cart)
+            .filter(
+                Cart.customer_id == customer.id,
+                CartItem.product_id == product_id,
+            )
+            .first()
+        )
+
+        if item is None:
+            raise NotFoundException("Cart item not found.")
+
+        item.quantity = quantity
+
+        try:
+            db.commit()
+            return StoreService.cart_response(
+                StoreService.get_cart(db, user_id)
+            )
+        except Exception:
+            db.rollback()
+            raise
+
+
+    @staticmethod
     def remove_from_cart(db: Session, user_id: int, product_id: int):
         customer = StoreService._customer(db, user_id)
         item = db.query(CartItem).join(Cart).filter(Cart.customer_id == customer.id, CartItem.product_id == product_id).first()

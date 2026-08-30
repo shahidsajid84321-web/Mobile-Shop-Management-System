@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from sqlalchemy.orm import Session
 
 from app.models.role import Role
@@ -33,6 +35,7 @@ def seed_test_users(db: Session) -> None:
         phone="03000000000",
         password=hash_password("Salesman@123"),
         is_active=True,
+        email_verified_at=datetime.now(UTC),
         role_id=salesman_role.id,
     )
 

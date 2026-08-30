@@ -9,6 +9,9 @@ _buckets = defaultdict(deque)
 _lock = Lock()
 
 async def rate_limit_middleware(request: Request, call_next, limit: int, window: int):
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
     if request.url.path in {"/healthz", "/docs", "/openapi.json", "/redoc"}:
         return await call_next(request)
     key = request.client.host if request.client else "unknown"

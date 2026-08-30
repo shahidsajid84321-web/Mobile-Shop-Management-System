@@ -20,3 +20,9 @@ from app.models.order import Order, OrderItem, OrderStatusHistory
 from app.models.audit_log import AuditLog
 from app.models.payment_event import PaymentEvent
 from app.models.order_return import OrderReturn
+
+from app.models.auth_session import AuthSession
+
+from app.models.password_reset_token import PasswordResetToken
+
+from app.models.email_verification_token import EmailVerificationToken

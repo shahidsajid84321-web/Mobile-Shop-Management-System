@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from sqlalchemy.orm import Session
 
 from app.core.security import hash_password
@@ -55,6 +57,7 @@ class UserService:
             password=hash_password(data.password),
             role_id=data.role_id,
             is_active=data.is_active,
+            email_verified_at=datetime.now(UTC),
         )
 
         return UserRepository.create(

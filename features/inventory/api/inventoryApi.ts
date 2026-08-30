@@ -1,0 +1,3 @@
+import {apiFetch} from "../../../lib/api"; import type {ApiResponse,PaginatedResponse} from "../../../shared/types/api";
+export type StockTransaction={id:number;product_id:number;transaction_type:string;quantity:number;unit_price:string;remarks:string|null};
+export const inventoryApi={list:(p=1)=>apiFetch<ApiResponse<PaginatedResponse<StockTransaction>>>(`/inventory/?page=${p}&page_size=10`,{},true),create:(b:object)=>apiFetch<ApiResponse<StockTransaction>>("/inventory/",{method:"POST",body:JSON.stringify(b)},true),product:(id:number,p=1)=>apiFetch<ApiResponse<PaginatedResponse<StockTransaction>>>(`/inventory/product/${id}?page=${p}&page_size=10`,{},true)};

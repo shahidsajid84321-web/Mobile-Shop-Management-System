@@ -1,0 +1,3 @@
+import { expect, it, vi } from "vitest"; import { roleApi } from "../../features/roles/api/roleApi"; import { apiFetch } from "../../lib/api";
+vi.mock("../../lib/api",()=>({apiFetch:vi.fn()}));
+it("covers role, permission and role-permission operations",async()=>{const m=vi.mocked(apiFetch);m.mockResolvedValue({});await roleApi.list();await roleApi.get(1);await roleApi.create({name:"Manager"});await roleApi.update(1,{name:"Admin"});await roleApi.remove(1);await roleApi.permissions();await roleApi.rolePermissions(1);await roleApi.setRolePermissions(1,{permission_ids:[1]});expect(m).toHaveBeenCalledTimes(8);});

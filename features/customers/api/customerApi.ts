@@ -1,0 +1,3 @@
+import {apiFetch} from "../../../lib/api"; import type {ApiResponse,PaginatedResponse} from "../../../shared/types/api";
+export type Customer={id:number;full_name:string;email:string|null;phone:string;address:string|null;is_active:boolean};
+export const customerApi={list:(p=1)=>apiFetch<ApiResponse<PaginatedResponse<Customer>>>(`/customers/?page=${p}&page_size=10`,{},true),get:(id:number)=>apiFetch<ApiResponse<Customer>>(`/customers/${id}`,{},true),create:(b:object)=>apiFetch<ApiResponse<Customer>>("/customers/",{method:"POST",body:JSON.stringify(b)},true),update:(id:number,b:object)=>apiFetch<ApiResponse<Customer>>(`/customers/${id}`,{method:"PUT",body:JSON.stringify(b)},true),remove:(id:number)=>apiFetch<ApiResponse<null>>(`/customers/${id}`,{method:"DELETE"},true)};

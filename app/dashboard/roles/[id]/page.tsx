@@ -1,0 +1,1 @@
+import Link from "next/link"; import { RoleForm } from "../../../../features/roles/components/RolePages"; export default function Page(){return <div><RoleForm edit/><div className="mx-auto max-w-6xl px-6 pb-8"><Link className="text-sm font-semibold underline" href="./permissions">Manage permissions</Link></div></div>}

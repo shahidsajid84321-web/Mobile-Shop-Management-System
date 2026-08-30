@@ -1,0 +1,3 @@
+import { expect, it, vi } from "vitest"; import { storeApi } from "../../features/store/api/storeApi"; import { apiFetch } from "../../lib/api";
+vi.mock("../../lib/api",()=>({apiFetch:vi.fn()}));
+it("covers management orders and returns",async()=>{const m=vi.mocked(apiFetch);m.mockResolvedValue({});await storeApi.managementOrders();await storeApi.updateOrder(1,{status:"Shipped"});await storeApi.managementReturns();await storeApi.updateReturn(2,{status:"Approved"});expect(m).toHaveBeenCalledWith("/store/management/orders/1/status",expect.objectContaining({method:"PATCH"}),true);expect(m).toHaveBeenCalledTimes(4);});

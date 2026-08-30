@@ -1,0 +1,3 @@
+import {apiFetch} from "../../../lib/api"; import type {ApiResponse} from "../../../shared/types/api";
+export type Dashboard={total_products:number;active_products:number;low_stock_products:number;out_of_stock_products:number;total_categories:number;total_customers:number;total_suppliers:number;total_sales_count:number;total_sales_amount:string;today_sales_amount:string;total_purchases_count:number;total_purchases_amount:string;today_purchases_amount:string;total_stock:number;total_stock_in:number;total_stock_out:number;total_paid_amount:string;pending_payments:string;gross_profit:string};
+export const dashboardApi={get:()=>apiFetch<ApiResponse<Dashboard>>("/dashboard/",{},true)};

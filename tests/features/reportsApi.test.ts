@@ -1,0 +1,3 @@
+import { expect, it, vi } from "vitest"; import { reportApi } from "../../features/reports/api/reportApi"; import { apiFetch } from "../../lib/api";
+vi.mock("../../lib/api",()=>({apiFetch:vi.fn()}));
+it("covers all report endpoints and URL encoding",async()=>{const m=vi.mocked(apiFetch);m.mockResolvedValue({});await reportApi.sales("2026-08-01","2026-08-30");await reportApi.purchases("2026-08-01","2026-08-30");await reportApi.payments("2026-08-01","2026-08-30");await reportApi.profit("2026-08-01","2026-08-30");await reportApi.stock();expect(m).toHaveBeenCalledWith("/reports/sales?start_date=2026-08-01&end_date=2026-08-30",{},true);expect(m).toHaveBeenCalledTimes(5);});

@@ -1,0 +1,3 @@
+import { describe, expect, it, vi } from "vitest"; import { customerApi } from "../../features/customers/api/customerApi"; import { apiFetch } from "../../lib/api";
+vi.mock("../../lib/api",()=>({apiFetch:vi.fn()})); const mock=vi.mocked(apiFetch);
+it("covers customer list/get/create/update/delete",async()=>{mock.mockResolvedValue({});await customerApi.list(2);await customerApi.get(7);await customerApi.create({full_name:"Ali"});await customerApi.update(7,{is_active:false});await customerApi.remove(7);expect(mock).toHaveBeenCalledTimes(5);expect(mock).toHaveBeenCalledWith("/customers/?page=2&page_size=10",{},true);});

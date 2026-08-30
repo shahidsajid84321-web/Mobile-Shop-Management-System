@@ -1,0 +1,3 @@
+import {apiFetch} from "../../../lib/api"; import type {ApiResponse,PaginatedResponse} from "../../../shared/types/api";
+export type PurchaseItem={id:number;product_id:number;quantity:number;unit_price:string;subtotal:string}; export type Purchase={id:number;supplier_id:number;invoice_number:string;purchase_date:string;total_amount:string;remarks:string|null;items:PurchaseItem[]};
+export const purchaseApi={list:(p=1)=>apiFetch<ApiResponse<PaginatedResponse<Purchase>>>(`/purchases/?page=${p}&page_size=10`,{},true),get:(id:number)=>apiFetch<ApiResponse<Purchase>>(`/purchases/${id}`,{},true),create:(b:object)=>apiFetch<ApiResponse<Purchase>>("/purchases/",{method:"POST",body:JSON.stringify(b)},true)};
